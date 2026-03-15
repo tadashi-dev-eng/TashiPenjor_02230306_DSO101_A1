@@ -1,19 +1,19 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apk add --no-cache libstdc++ libgcc openssl
+# Install runtime + build dependencies (needed for native modules like better-sqlite3)
+RUN apk add --no-cache libstdc++ libgcc openssl python3 make g++ build-base \
+  && ln -sf /usr/bin/python3 /usr/bin/python
 
 # Copy package files first (for caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
-
-# Copy Prisma schema and generate client
+# Copy Prisma schema early so `npm install` (postinstall) can run prisma generate
 COPY prisma ./prisma/
-RUN npx prisma generate
+
+# Install dependencies (runs `postinstall` which triggers prisma generate)
+RUN npm install
 
 # Copy source and config
 COPY tsconfig.json ./

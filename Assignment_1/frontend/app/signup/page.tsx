@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.REACT_APP_API_URL ||
+  "http://localhost:3001";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -21,7 +26,7 @@ export default function SignUpPage() {
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+      const res = await fetch(`${API}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

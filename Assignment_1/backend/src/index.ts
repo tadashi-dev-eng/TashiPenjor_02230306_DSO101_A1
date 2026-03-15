@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { serve } from "@hono/node-server";
 import bcrypt from "bcrypt";
+import { clear } from "console";
 
 type JwtPayload = { sub: string; exp: number };
 
@@ -160,11 +161,17 @@ app.delete("/protected/todos/:id", async (c) => {
   return c.json({ message: "Todo deleted" });
 });
 
-serve({
-  fetch: app.fetch,
-  port: 3001,
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`);
-});
+const port = Number(process.env.PORT) || 3001;
+
+serve(
+  {
+    fetch: app.fetch,
+    port,
+    hostname: "0.0.0.0",
+  },
+  (info) => {
+    console.log(`Server is running on http://0.0.0.0:${info.port}`);
+  }
+);
 
 export default app;
