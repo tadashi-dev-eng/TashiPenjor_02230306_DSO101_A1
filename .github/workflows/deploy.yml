@@ -39,7 +39,7 @@ jobs:
           docker build \
             --build-arg REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
             -t ${{ secrets.DOCKER_USERNAME }}/fe-todo:latest \
-            ./frontend
+            ./Assignment_1/frontend
 
       - name: Push frontend image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/fe-todo:latest
