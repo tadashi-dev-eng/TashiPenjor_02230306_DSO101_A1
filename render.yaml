@@ -1,7 +1,7 @@
 services:
   - type: web
     name: be-todo
-    env: docker
+    runtime: docker
     dockerfilePath: ./backend/Dockerfile
     envVars:
       - key: DB_HOST
@@ -17,7 +17,7 @@ services:
 
   - type: web
     name: fe-todo
-    env: docker
+    runtime: docker
     dockerfilePath: ./frontend/Dockerfile
     envVars:
       - key: REACT_APP_API_URL
