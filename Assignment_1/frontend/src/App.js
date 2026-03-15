@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import './App.css';
+
 const API = process.env.REACT_APP_API_URL;
 
 function App() {
@@ -30,6 +32,16 @@ function App() {
     if (editingId === id) cancelEdit();
   };
 
+  const toggleDone = async (todo) => {
+    const res = await fetch(`${API}/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task: todo.task, done: !todo.done })
+    });
+    const updated = await res.json();
+    setTodos(todos.map(t => (t.id === todo.id ? updated : t)));
+  };
+
   const startEdit = (todo) => {
     setEditingId(todo.id);
     setEditingTask(todo.task);
@@ -45,7 +57,7 @@ function App() {
     const res = await fetch(`${API}/todos/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task: editingTask })
+      body: JSON.stringify({ task: editingTask, done: todos.find(t => t.id === editingId)?.done })
     });
     const updated = await res.json();
     setTodos(todos.map(t => (t.id === editingId ? updated : t)));
@@ -53,40 +65,59 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>To-Do List</h1>
+    <div className="app">
+      <header className="topbar">
+        <h1>To‑Do List</h1>
+      </header>
 
-      <div>
-        <input
-          value={task}
-          onChange={e => setTask(e.target.value)}
-          placeholder="New task"
-        />
-        <button onClick={add}>Add</button>
-      </div>
+      <section className="card">
+        <div className="form-row">
+          <input
+            className="input"
+            value={task}
+            onChange={e => setTask(e.target.value)}
+            placeholder="Add a new task"
+          />
+          <button className="primary" onClick={add}>Add</button>
+        </div>
 
-      <ul>
-        {todos.map(t => (
-          <li key={t.id}>
-            {editingId === t.id ? (
-              <>
+        <ul className="todo-list">
+          {todos.map(t => (
+            <li key={t.id} className={`todo-item ${t.done ? 'done' : ''}`}>
+              <div className="todo-main">
                 <input
-                  value={editingTask}
-                  onChange={e => setEditingTask(e.target.value)}
+                  type="checkbox"
+                  checked={t.done}
+                  onChange={() => toggleDone(t)}
                 />
-                <button onClick={saveEdit}>Save</button>
-                <button onClick={cancelEdit}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <span>{t.task}</span>
-                <button onClick={() => startEdit(t)}>Edit</button>
-                <button onClick={() => del(t.id)}>Delete</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+                {editingId === t.id ? (
+                  <input
+                    className="edit-input"
+                    value={editingTask}
+                    onChange={e => setEditingTask(e.target.value)}
+                  />
+                ) : (
+                  <span className="task-text">{t.task}</span>
+                )}
+              </div>
+
+              <div className="actions">
+                {editingId === t.id ? (
+                  <>
+                    <button className="secondary" onClick={saveEdit}>Save</button>
+                    <button className="secondary" onClick={cancelEdit}>Cancel</button>
+                  </>
+                ) : (
+                  <>
+                    <button className="secondary" onClick={() => startEdit(t)}>Edit</button>
+                    <button className="danger" onClick={() => del(t.id)}>Delete</button>
+                  </>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
